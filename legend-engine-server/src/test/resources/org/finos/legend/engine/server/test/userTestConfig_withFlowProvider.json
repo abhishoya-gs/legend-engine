@@ -3,7 +3,7 @@
     "mode": "TEST_IGNORE_FUNCTION_MATCH"
   },
   "logging": {
-    "level": "error",
+    "level": "info",
     "appenders": [
       {
         "type": "console",
@@ -69,10 +69,14 @@
     "tempPath": "/tmp/",
     "flowProviderClass": "org.finos.legend.engine.authentication.LegendDefaultDatabaseAuthenticationFlowProvider",
     "flowProviderConfiguration": {
-        "_type": "legendDefault",
-        "defaultAWSAccountID": "DEFAULT_AWS_ACCOUNT_ID",
-        "defaultAWSRoleName": "DEFAULT_AWS_ROLE_NAME",
-        "defaultAWSRegion": "DEFAULT_AWS_REGION"
+        "_type": "legendDefault"
     }
-  }
+  },
+  "vaults" :
+  [
+    {
+      "_type" : "property",
+      "location" : "legend-engine-server/src/test/resources/org/finos/legend/engine/server/test/vault.properties"
+    }
+  ]
 }
