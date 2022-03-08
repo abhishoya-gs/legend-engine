@@ -97,12 +97,17 @@ bigQueryDatasourceSpecification:            BIGQUERY_DSP
                                                     (
                                                         projectId
                                                         | defaultDataset
+                                                        | dbProxyHost
+                                                        | dbProxyPort
+                                                        | dbRootUrl
                                                     )*
                                                 BRACE_CLOSE
 ;
 projectId:                                    PROJECT COLON STRING SEMI_COLON
 ;
 defaultDataset:                                    DATASET COLON STRING SEMI_COLON
+;
+dbRootUrl:                                      ROOTURL COLON STRING SEMI_COLON
 ;
 // ----------------------------- SHARED -----------------------------
 

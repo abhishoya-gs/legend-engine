@@ -18,6 +18,9 @@ public class BigQueryDatasourceSpecification extends DatasourceSpecification
 {
     public String projectId;
     public String defaultDataset;
+    public String proxyHost;
+    public String proxyPort;
+    public String rootUrl;
 
     public BigQueryDatasourceSpecification()
     {

@@ -22,9 +22,19 @@ public class BigQueryDataSourceSpecificationKey implements DataSourceSpecificati
 {
     private final String projectId;
     private final String defaultDataset;
+    private String proxyHost;
+    private String proxyPort;
+    private String rootUrl;
 
-    public BigQueryDataSourceSpecificationKey(String projectId, String defaultDataset)
+    public BigQueryDataSourceSpecificationKey(String projectId, String defaultDataset, String proxyHost, String proxyPort, String rootUrl)
     {
+        this(projectId, defaultDataset);
+        this.proxyHost = proxyHost;
+        this.proxyPort = proxyPort;
+        this.rootUrl = rootUrl;
+    }
+
+    public BigQueryDataSourceSpecificationKey(String projectId, String defaultDataset){
         this.projectId = projectId;
         this.defaultDataset = defaultDataset;
     }
@@ -39,12 +49,27 @@ public class BigQueryDataSourceSpecificationKey implements DataSourceSpecificati
         return defaultDataset;
     }
 
+    public String getProxyHost() {
+        return proxyHost;
+    }
+
+    public String getProxyPort() {
+        return proxyPort;
+    }
+
+    public String getRootUrl() {
+        return rootUrl;
+    }
+
     @Override
     public String toString()
     {
         return "BigQuerySpecificationKey{" +
                 "projectId='" + projectId + '\'' +
                 ",defaultDataset='" + defaultDataset + '\'' +
+                ",proxyHost='" + proxyHost + '\'' +
+                ",proxyPort='" + proxyPort + '\'' +
+                ",rootUrl='" + rootUrl + '\'' +
                 '}';
     }
 
@@ -53,7 +78,10 @@ public class BigQueryDataSourceSpecificationKey implements DataSourceSpecificati
     {
         return "BigQuery" +
                 "projectId:" + projectId + "_" +
-                "defaultDataset:" + defaultDataset + "_";
+                "defaultDataset:" + defaultDataset + "_" +
+                "proxyHost:" + proxyHost + "_" +
+                "proxyPort:" + proxyPort + "_" +
+                "rootUrl:" + rootUrl + "_";
     }
 
     @Override
@@ -69,12 +97,15 @@ public class BigQueryDataSourceSpecificationKey implements DataSourceSpecificati
         }
         BigQueryDataSourceSpecificationKey that = (BigQueryDataSourceSpecificationKey) o;
         return Objects.equals(projectId, that.projectId) &&
-                Objects.equals(defaultDataset, that.defaultDataset);
+                Objects.equals(defaultDataset, that.defaultDataset) &&
+                Objects.equals(proxyHost, that.proxyHost) &&
+                Objects.equals(proxyPort, that.proxyPort) &&
+                Objects.equals(rootUrl, that.rootUrl);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(projectId, defaultDataset);
+        return Objects.hash(projectId, defaultDataset, proxyHost, proxyPort, rootUrl);
     }
 }

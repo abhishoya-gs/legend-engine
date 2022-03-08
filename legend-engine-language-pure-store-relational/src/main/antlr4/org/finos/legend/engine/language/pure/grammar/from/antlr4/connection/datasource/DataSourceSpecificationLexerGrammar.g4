@@ -32,3 +32,4 @@ ROLE:                                       'role';
 BIGQUERY_DSP:                               'BigQuery';
 PROJECT:                                    'projectId';
 DATASET:                                    'defaultDataset';
+ROOTURL:                                    'rootUrl';

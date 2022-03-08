@@ -133,6 +133,15 @@ public class DataSourceSpecificationParseTreeWalker
         // default dataset
         DataSourceSpecificationParserGrammar.DefaultDatasetContext defaultDatasetCtx = PureGrammarParserUtility.validateAndExtractRequiredField(dbSpecCtx.defaultDataset(), "defaultDataset", dsSpec.sourceInformation);
         dsSpec.defaultDataset = PureGrammarParserUtility.fromGrammarString(defaultDatasetCtx.STRING().getText(), true);
+        // proxyHost
+        DataSourceSpecificationParserGrammar.DbProxyHostContext proxyHostContext = PureGrammarParserUtility.validateAndExtractOptionalField(dbSpecCtx.dbProxyHost(), "proxyHost", dsSpec.sourceInformation);
+        Optional.ofNullable(proxyHostContext).ifPresent(hostCtx -> dsSpec.proxyHost = PureGrammarParserUtility.fromGrammarString(hostCtx.STRING().getText(), true));
+        // proxyPort
+        DataSourceSpecificationParserGrammar.DbProxyPortContext proxyPortContext = PureGrammarParserUtility.validateAndExtractOptionalField(dbSpecCtx.dbProxyPort(), "proxyPort", dsSpec.sourceInformation);
+        Optional.ofNullable(proxyPortContext).ifPresent(portCtx -> dsSpec.proxyPort = PureGrammarParserUtility.fromGrammarString(portCtx.STRING().getText(), true));
+        // proxyPort
+        DataSourceSpecificationParserGrammar.DbRootUrlContext rootUrlContext = PureGrammarParserUtility.validateAndExtractOptionalField(dbSpecCtx.dbRootUrl(), "rootUrl", dsSpec.sourceInformation);
+        Optional.ofNullable(rootUrlContext).ifPresent(rooturlCtx -> dsSpec.rootUrl = PureGrammarParserUtility.fromGrammarString(rooturlCtx.STRING().getText(), true));
         return dsSpec;
     }
 }

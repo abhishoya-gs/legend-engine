@@ -638,6 +638,9 @@ public class HelperRelationalGrammarComposer
                     context.getIndentationString() + getTabString(baseIndentation) + "{\n" +
                     context.getIndentationString() + getTabString(baseIndentation + 1) + "projectId: " + convertString(spec.projectId, true) + ";\n" +
                     context.getIndentationString() + getTabString(baseIndentation + 1) + "defaultDataset: " + convertString(spec.defaultDataset, true) + ";\n" +
+                    (spec.proxyHost != null ? context.getIndentationString() + getTabString(baseIndentation + 1) + "proxyHost: " + convertString(spec.proxyHost, true) + ";\n" : "") +
+                    (spec.proxyPort != null ? context.getIndentationString() + getTabString(baseIndentation + 1) + "proxyPort: " + convertString(spec.proxyPort, true) + ";\n" : "") +
+                    (spec.rootUrl != null ? context.getIndentationString() + getTabString(baseIndentation + 1) + "rootUrl: " + convertString(spec.rootUrl, true) + ";\n" : "") +
                     context.getIndentationString() + getTabString(baseIndentation) + "}";
         }
 

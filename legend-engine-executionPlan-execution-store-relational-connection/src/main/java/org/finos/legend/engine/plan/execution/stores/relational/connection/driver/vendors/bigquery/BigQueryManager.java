@@ -66,6 +66,9 @@ public class BigQueryManager extends DatabaseManager
         String url = String.format(BIGQUERY_JDBC_URL +
                         "ProjectId=%s;" +
                         this.buildParamForDefaultDataset(extraUserDataSourceProperties) +
+                        this.buildParamForOptionalProperty(extraUserDataSourceProperties, BigQueryDataSourceSpecification.BIGQUERY_PROXY_HOST, "ProxyHost") +
+                        this.buildParamForOptionalProperty(extraUserDataSourceProperties, BigQueryDataSourceSpecification.BIGQUERY_PROXY_PORT, "ProxyPort") +
+                        this.buildParamForOptionalProperty(extraUserDataSourceProperties, BigQueryDataSourceSpecification.BIGQUERY_ROOT_URL, "rootUrl") +
                         "OAuthType=2;",
                 extraUserDataSourceProperties.getProperty(BigQueryDataSourceSpecification.BIGQUERY_PROJECT_ID));
         return url;
@@ -77,6 +80,19 @@ public class BigQueryManager extends DatabaseManager
         if (defaultDataset != null && !defaultDataset.trim().isEmpty())
         {
             return String.format("DefaultDataset=%s;", defaultDataset);
+        }
+        else
+        {
+            return "";
+        }
+    }
+
+    private String buildParamForOptionalProperty(Properties extraUserDataSourceProperties, String optionalPropertyKey, String optionalProperty)
+    {
+        String defaultDataset = extraUserDataSourceProperties.getProperty(optionalPropertyKey);
+        if (defaultDataset != null && !defaultDataset.trim().isEmpty())
+        {
+            return String.format(optionalProperty+"=%s;", defaultDataset);
         }
         else
         {
