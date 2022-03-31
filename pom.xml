@@ -133,7 +133,7 @@
         <snowflake.version>3.13.5</snowflake.version>
         <redshiftJDBC.version>2.0.0.3</redshiftJDBC.version>
         <!-- Legend -->
-        <legend.pure.version>1.52.2</legend.pure.version>
+        <legend.pure.version>1.52.3-SNAPSHOT</legend.pure.version>
         <legend.shared.version>0.20.0</legend.shared.version>
 
         <!-- Dependency versions -->
@@ -1724,6 +1724,75 @@
                 <artifactId>netty-all</artifactId>
                 <version>${io.netty.version}</version>
             </dependency>
+
+            <!-- BigQuery Driver Dependencies -->
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>google-cloud-bigquery</artifactId>
+                <version>2.3.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.errorprone</groupId>
+                        <artifactId>error_prone_annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.annotation</groupId>
+                        <artifactId>javax.annotation-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.checkerframework</groupId>
+                        <artifactId>checker-qual</artifactId>
+                    </exclusion>
+                </exclusions>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>google-cloud-bigquerystorage</artifactId>
+                <version>2.3.2</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.cloud</groupId>
+                        <artifactId>google-cloud-bigquery</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.google.errorprone</groupId>
+                        <artifactId>error_prone_annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.google.apis</groupId>
+                        <artifactId>google-api-services-bigquery</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.annotation</groupId>
+                        <artifactId>javax.annotation-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.google.protobuf</groupId>
+                        <artifactId>protobuf-java</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.checkerframework</groupId>
+                        <artifactId>checker-qual</artifactId>
+                    </exclusion>
+                </exclusions>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.avro</groupId>
+                <artifactId>avro</artifactId>
+                <version>1.10.2</version>
+                <scope>runtime</scope>
+            </dependency>
+            <!-- BigQuery Driver Dependencies -->
         </dependencies>
 
     </dependencyManagement>
