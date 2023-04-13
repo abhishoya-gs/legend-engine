@@ -190,6 +190,11 @@ Class meta::external::query::graphQL::metamodel::sdl::value::NullValue extends m
 {
 }
 
+Class meta::external::query::graphQL::metamodel::sdl::value::DateValue extends meta::external::query::graphQL::metamodel::sdl::value::Value
+{
+  value: String[1];
+}
+
 Class meta::external::query::graphQL::metamodel::sdl::typeSystem::ObjectTypeDefinition extends meta::external::query::graphQL::metamodel::sdl::typeSystem::Type
 {
   name: String[1];

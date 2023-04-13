@@ -192,6 +192,7 @@ function meta::external::query::graphQL::serialization::graphQLtoString(value: V
       l : ListValue[1] | '['+$l.values->map(v|$v->graphQLtoString())->joinStrings(', ')+']',
       v : Variable[1] | '$'+$v.name,
       e : EnumValue[1] | $e.value,
+      d : DateValue[1] | $d.value,
       n : NullValue[1] | 'null'
     ]
   )

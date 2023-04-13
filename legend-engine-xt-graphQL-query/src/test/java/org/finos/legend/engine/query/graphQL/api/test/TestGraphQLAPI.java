@@ -244,7 +244,6 @@ public class TestGraphQLAPI
     }
 
     @Test
-    @Ignore // TODO - Fails as date is not supported as an argument now
     public void testGraphQLExecuteDevAPI_Milestoning() throws Exception
     {
         ModelManager modelManager = new ModelManager(DeploymentMode.TEST);
@@ -255,12 +254,12 @@ public class TestGraphQLAPI
         Mockito.when(mockRequest.getCookies()).thenReturn(new Cookie[0]);
         Query query = new Query();
         query.query = "query Query {\n" +
-                "  allFirms {\n" +
+                "  firmByLegalName(legalName: \"Firm X\") {\n" +
                 "      legalName,\n" +
                 "      employees {\n" +
                 "        firstName,\n" +
                 "        lastName\n" +
-                "        address(businessDate: \"13-02-2023\", processingDate: \"13-02-2023\"){\n" +
+                "        address(businessDate: 2023-02-13, processingDate: 2023-02-13){\n" +
                 "          line1\n" +
                 "        }\n" +
                 "      }\n" +
@@ -268,14 +267,35 @@ public class TestGraphQLAPI
                 "  }";
         Response response = graphQLExecute.executeDev(mockRequest, "Project1", "Workspace1", "simple::model::Query", "simple::mapping::Map", "simple::runtime::Runtime", query, null);
 
-        String expected = "{" +
-                "\"data\":{" +
-                "\"allFirms\":[" +
-                "{\"legalName\":\"Firm X\",\"employees\":[{\"firstName\":\"Peter\",\"lastName\":\"Smith\"}]}," +
-                "{\"legalName\":\"Firm A\",\"employees\":[]}," +
-                "{\"legalName\":\"Firm B\",\"employees\":[]}" +
-                "]" +
-                "}" +
+        String expected =
+                "{" +
+                    "\"data\":{" +
+                        "\"firmByLegalName\":{" +
+                            "\"legalName\":\"Firm X\"," +
+                            "\"employees\":[" +
+                                "{" +
+                                    "\"firstName\":\"Peter\"," +
+                                    "\"lastName\":\"Smith\"," +
+                                    "\"address($employees_address_processingDate, $employees_address_businessDate)\":{\"line1\":\"peter address\"}" +
+                                "}," +
+                                "{" +
+                                    "\"firstName\":\"John\"," +
+                                    "\"lastName\":\"Johnson\"," +
+                                    "\"address($employees_address_processingDate, $employees_address_businessDate)\":null" +
+                                "}," +
+                                "{" +
+                                    "\"firstName\":\"John\"," +
+                                    "\"lastName\":\"Hill\"," +
+                                    "\"address($employees_address_processingDate, $employees_address_businessDate)\":null" +
+                                "}," +
+                                "{" +
+                                    "\"firstName\":\"Anthony\"," +
+                                    "\"lastName\":\"Allen\"," +
+                                    "\"address($employees_address_processingDate, $employees_address_businessDate)\":null" +
+                                "}" +
+                            "]" +
+                        "}" +
+                    "}" +
                 "}";
         Assert.assertEquals(expected, responseAsString(response));
     }

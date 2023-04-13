@@ -114,6 +114,9 @@ public class TestGraphQLRoundtrip
                 "      tasks(val: en) {\n" +
                 "        description(p: 3.2, z: [1, 2, \"ok\"])\n" +
                 "      }\n" +
+                "      milestonedProperty(businessDate: 2023-04-15, processingDate: 2023-04-15) {\n" +
+                "        prop\n" +
+                "      }\n" +
                 "    }\n" +
                 "  }\n" +
                 "}");

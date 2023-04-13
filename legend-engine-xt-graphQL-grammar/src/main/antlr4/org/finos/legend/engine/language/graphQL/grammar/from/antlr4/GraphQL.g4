@@ -93,6 +93,7 @@ value:
 	| enumValue
 	| listValue
 	| objectValue
+	| dateValue
    ;
 
 //https://spec.graphql.org/June2018/#sec-Int-Value
@@ -125,6 +126,9 @@ listValue: '[' ']'
 objectValue: OPEN_CURLY objectField* CLOSE_CURLY;
 
 objectField: name ':' value;
+
+// custom scalar
+dateValue: DATE;
 
 //https://spec.graphql.org/June2018/#sec-Language.Variables
 variable: '$' name;
@@ -372,6 +376,7 @@ fragment EXPONENTIAL_PART: EXPONENT_INDICATOR SIGN? DIGIT+;
 fragment EXPONENT_INDICATOR: [eE];
 fragment SIGN: [+-];
 fragment NEGATIVE_SIGN: '-';
+fragment HYPHEN: '-';
 
 FLOAT: INT FRACTIONAL_PART
     | INT EXPONENTIAL_PART
@@ -381,6 +386,10 @@ FLOAT: INT FRACTIONAL_PART
 INT: NEGATIVE_SIGN? '0'
     | NEGATIVE_SIGN? NONZERO_DIGIT DIGIT*
     ;
+
+DATE: FOUR_DIGIT '-' TWO_DIGIT '-' TWO_DIGIT;
+FOUR_DIGIT: TWO_DIGIT TWO_DIGIT;
+TWO_DIGIT: DIGIT DIGIT;
 
 PUNCTUATOR: '!'
     | '$'

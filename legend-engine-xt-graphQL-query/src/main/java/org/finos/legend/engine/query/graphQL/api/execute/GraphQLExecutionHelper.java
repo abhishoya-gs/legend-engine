@@ -25,6 +25,7 @@ import org.finos.legend.engine.protocol.graphQL.metamodel.executable.Selection;
 import org.finos.legend.engine.protocol.graphQL.metamodel.executable.SelectionVisitor;
 
 import org.finos.legend.engine.protocol.graphQL.metamodel.value.BooleanValue;
+import org.finos.legend.engine.protocol.graphQL.metamodel.value.DateValue;
 import org.finos.legend.engine.protocol.graphQL.metamodel.value.EnumValue;
 import org.finos.legend.engine.protocol.graphQL.metamodel.value.FloatValue;
 import org.finos.legend.engine.protocol.graphQL.metamodel.value.IntValue;
@@ -51,6 +52,12 @@ public class GraphQLExecutionHelper
         {
             @Override
             public Object visit(BooleanValue val)
+            {
+                return val.value;
+            }
+
+            @Override
+            public Object visit(DateValue val)
             {
                 return val.value;
             }

@@ -58,6 +58,7 @@ import org.finos.legend.engine.protocol.graphQL.metamodel.typeSystem.TypeReferen
 import org.finos.legend.engine.protocol.graphQL.metamodel.typeSystem.TypeSystemDirectiveLocation;
 import org.finos.legend.engine.protocol.graphQL.metamodel.typeSystem.UnionTypeDefinition;
 import org.finos.legend.engine.protocol.graphQL.metamodel.value.BooleanValue;
+import org.finos.legend.engine.protocol.graphQL.metamodel.value.DateValue;
 import org.finos.legend.engine.protocol.graphQL.metamodel.value.EnumValue;
 import org.finos.legend.engine.protocol.graphQL.metamodel.value.FloatValue;
 import org.finos.legend.engine.protocol.graphQL.metamodel.value.IntValue;
@@ -491,6 +492,12 @@ public class GraphQLGrammarParser
             ListValue listValue = new ListValue();
             listValue.values = ListIterate.collect(valueContext.listValue().value(), this::visitValue);
             return listValue;
+        }
+        if (valueContext.dateValue() != null)
+        {
+            DateValue dateValue = new DateValue();
+            dateValue.value = valueContext.dateValue().getText();
+            return dateValue;
         }
         throw new RuntimeException("Error");
     }

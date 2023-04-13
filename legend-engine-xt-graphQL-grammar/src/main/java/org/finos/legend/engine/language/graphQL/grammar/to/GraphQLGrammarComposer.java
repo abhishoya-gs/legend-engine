@@ -45,6 +45,7 @@ import org.finos.legend.engine.protocol.graphQL.metamodel.typeSystem.TypeReferen
 import org.finos.legend.engine.protocol.graphQL.metamodel.typeSystem.TypeSystemDefinition;
 import org.finos.legend.engine.protocol.graphQL.metamodel.typeSystem.UnionTypeDefinition;
 import org.finos.legend.engine.protocol.graphQL.metamodel.value.BooleanValue;
+import org.finos.legend.engine.protocol.graphQL.metamodel.value.DateValue;
 import org.finos.legend.engine.protocol.graphQL.metamodel.value.EnumValue;
 import org.finos.legend.engine.protocol.graphQL.metamodel.value.FloatValue;
 import org.finos.legend.engine.protocol.graphQL.metamodel.value.IntValue;
@@ -290,6 +291,12 @@ public class GraphQLGrammarComposer
             public String visit(BooleanValue booleanValue)
             {
                 return String.valueOf(booleanValue.value);
+            }
+
+            @Override
+            public String visit(DateValue val)
+            {
+                return val.value;
             }
         });
     }
