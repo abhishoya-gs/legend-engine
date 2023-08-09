@@ -100,8 +100,9 @@ function <<access.private>> meta::external::query::graphQL::transformation::quer
 
 
 ###Pure
+import meta::external::query::graphQL::metamodel::sdl::*;
+import meta::pure::graphFetch::*;
 import meta::external::query::graphQL::transformation::queryToPure::*;
-
 function meta::external::query::graphQL::transformation::queryToPure::getPlansFromGraphQL(
                                                                           cl:Class<Any>[1],
                                                                           mapping:meta::pure::mapping::Mapping[1],
@@ -112,6 +113,8 @@ function meta::external::query::graphQL::transformation::queryToPure::getPlansFr
 {
   let graphFetch = meta::external::query::graphQL::transformation::queryToPure::graphQLExecutableToPure($query, $cl);
   let res = $graphFetch->meta::pure::graphFetch::domain::extractDomainTypeClassFromGraphFetchTree(true);
+
+  let res2 = meta::external::query::graphQL::transformation::queryToPure::findDirectivesOnRootQuery($query);
   $res->map(r|
               pair(
                 $r.propertyName,
@@ -122,7 +125,11 @@ function meta::external::query::graphQL::transformation::queryToPure::getPlansFr
                   $extensions
                 )
               )
-        );
+        )
+        ->concatenate(
+          meta::external::query::graphQL::transformation::queryToPure::getPlansForDirectives($graphFetch, $res, $mapping, $runtime, $query, $extensions)
+        )
+        ;
 }
 
 function meta::external::query::graphQL::transformation::queryToPure::graphQLExecutableToPlansWithParameters(
@@ -137,7 +144,9 @@ function meta::external::query::graphQL::transformation::queryToPure::graphQLExe
 
 
     let res = $pureWithParam->meta::pure::graphFetch::domain::extractDomainTypeClassFromGraphFetchTree(true);
-
+  
+  let res2 = meta::external::query::graphQL::transformation::queryToPure::findDirectivesOnRootQuery($query);
+  
   $res->map(r|
               ^meta::external::query::graphQL::transformation::queryToPure::NamedExecutionPlan(
                name = $r.propertyName,
@@ -148,9 +157,113 @@ function meta::external::query::graphQL::transformation::queryToPure::graphQLExe
                   $extensions
                 )
               )
-        );
-
+        )
+        ->concatenate(
+          meta::external::query::graphQL::transformation::queryToPure::getPlansForDirectives($pureWithParam, $res, $mapping, $runtime, $query, $extensions)->map(
+            psp | ^meta::external::query::graphQL::transformation::queryToPure::NamedExecutionPlan(
+              name = $psp.first,
+              plan = $psp.second
+            )
+          )
+        )
+        ;
 }
+
+function meta::external::query::graphQL::transformation::queryToPure::getPlansForDirectives(
+                                                                          tree: RootGraphFetchTree<Any>[1],
+                                                                          res: meta::pure::graphFetch::domain::ExtractedDomainClassWithParameters[*],
+                                                                          mapping:meta::pure::mapping::Mapping[1],
+                                                                          runtime:meta::pure::runtime::Runtime[1],
+                                                                          query:meta::external::query::graphQL::metamodel::sdl::Document[1],
+                                                                          extensions:meta::pure::extension::Extension[*]
+                                                                      ):Pair<String, meta::pure::executionPlan::ExecutionPlan>[*]
+{
+  let res2 = meta::external::query::graphQL::transformation::queryToPure::findDirectivesOnRootQuery($query);
+  $res2->map(psd|
+    $psd.second.values->filter(directive|$directive.name->in(['totalCount']))->map(
+      d | pair(
+            $psd.first + '@' + $d.name,
+            meta::pure::executionPlan::executionPlan(
+                functionDefForDirectives($d.name, $tree, $res, $query),
+                $mapping,
+                $runtime,
+                $extensions
+              )
+      )
+    )
+  );
+}
+
+function meta::external::query::graphQL::transformation::queryToPure::findDirectivesOnRootQuery(query: meta::external::query::graphQL::metamodel::sdl::Document[1]): Pair<String, List<Directive>>[*]
+{
+  if($query->instanceOf(meta::external::query::graphQL::metamodel::sdl::ExecutableDocument),
+  |$query->cast(@meta::external::query::graphQL::metamodel::sdl::ExecutableDocument).executableDefinitions->map(
+         ed|$ed->cast(@meta::external::query::graphQL::metamodel::sdl::executable::OperationDefinition).selectionSet->map(
+         s|$s->cast(@meta::external::query::graphQL::metamodel::sdl::executable::Field)->map(f|pair($f.name,^List<Directive>(values=$f.directives))))),
+  |[]);
+}
+
+function meta::external::query::graphQL::transformation::queryToPure::functionDefForDirectives(directiveName: String[1], tree: RootGraphFetchTree<Any>[1], res: meta::pure::graphFetch::domain::ExtractedDomainClassWithParameters[*], query: meta::external::query::graphQL::metamodel::sdl::Document[1]): FunctionDefinition<Any>[1]
+{
+  if($directiveName == 'totalCount', 
+    | meta::external::query::graphQL::transformation::queryToPure::functionDefForTotalCountDirective($tree, $res, $query), 
+    | fail('directive not supported');
+      []->cast(@FunctionDefinition<Any>)->toOne();
+  );
+}
+
+function meta::external::query::graphQL::transformation::queryToPure::isALimitingFunction(func: Function<Any>[1]): Boolean[1]
+{
+  $func->in(
+    [
+      slice_T_MANY__Integer_1__Integer_1__T_MANY_,
+      drop_T_MANY__Integer_1__T_MANY_,
+      limit_T_MANY__Integer_1__T_MANY_,
+      take_T_MANY__Integer_1__T_MANY_,
+      paginated_T_MANY__Integer_1__Integer_1__T_MANY_,
+      slice_TabularDataSet_1__Integer_1__Integer_1__TabularDataSet_1_,
+      drop_TabularDataSet_1__Integer_1__TabularDataSet_1_,
+      limit_TabularDataSet_1__Integer_1__TabularDataSet_1_,
+      limit_TabularDataSet_1__Integer_$0_1$__TabularDataSet_1_,
+      take_TabularDataSet_1__Integer_1__TabularDataSet_1_,
+      paginated_TabularDataSet_1__Integer_1__Integer_1__TabularDataSet_1_
+    ]
+  )
+}
+
+function meta::external::query::graphQL::transformation::queryToPure::functionDefForTotalCountDirective(tree: RootGraphFetchTree<Any>[1], res: meta::pure::graphFetch::domain::ExtractedDomainClassWithParameters[*], query: meta::external::query::graphQL::metamodel::sdl::Document[1]): FunctionDefinition<Any>[1]
+{
+  let parameters = $tree.subTrees->cast(@meta::pure::graphFetch::PropertyGraphFetchTree)->evaluateAndDeactivate()->at(0).property.classifierGenericType.typeArguments.rawType->cast(@FunctionType).parameters->tail()->evaluateAndDeactivate();
+  let expressionSequence = $res->at(0).functionDef.expressionSequence;
+  let getAll = $expressionSequence->last()->toOne()->cast(@SimpleFunctionExpression);
+  let funcWithoutGraphFetchSerialize = $expressionSequence->last()->toOne()
+                                        ->cast(@SimpleFunctionExpression).parametersValues->at(0)
+                                        ->cast(@SimpleFunctionExpression).parametersValues->at(0);
+  let funcWithoutLimitingFunction = if(
+    $funcWithoutGraphFetchSerialize->cast(@SimpleFunctionExpression).func->meta::external::query::graphQL::transformation::queryToPure::isALimitingFunction(),
+    |$funcWithoutGraphFetchSerialize->cast(@SimpleFunctionExpression).parametersValues->at(0),
+    |$funcWithoutGraphFetchSerialize
+  );
+  
+  let expressionSequenceLengthLess1 = $expressionSequence->size() - 1;
+  let func = ^LambdaFunction<{->Any[*]}>(expressionSequence=$expressionSequence->slice(0,$expressionSequenceLengthLess1)->concatenate(
+                                                                                                                          ^$getAll(
+                                                                                                                            func = count_Any_MANY__Integer_1_,
+                                                                                                                            functionName = 'count',
+                                                                                                                            genericType = ^GenericType(rawType=Integer),
+                                                                                                                            resolvedTypeParameters = ^GenericType(rawType=Integer),
+                                                                                                                            parametersValues = [
+                                                                                                                              $funcWithoutLimitingFunction
+                                                                                                                            ],
+                                                                                                                            usageContext = []
+                                                                                                                          ))->toOneMany());
+  let lambdaWithParams = newLambdaFunction( 
+                          ^FunctionType(returnMultiplicity = ZeroMany, returnType = ^GenericType(rawType = Any), parameters= $parameters)
+                        );
+  ^$func(classifierGenericType=$lambdaWithParams.classifierGenericType);
+}
+
+
 Class meta::external::query::graphQL::transformation::queryToPure::NamedExecutionPlan
 {
   name : String[1];

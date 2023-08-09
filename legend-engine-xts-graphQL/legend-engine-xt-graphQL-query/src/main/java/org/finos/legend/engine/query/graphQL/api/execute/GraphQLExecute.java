@@ -35,6 +35,8 @@ import org.finos.legend.engine.plan.execution.PlanExecutor;
 import org.finos.legend.engine.plan.execution.result.ConstantResult;
 import org.finos.legend.engine.plan.execution.result.Result;
 import org.finos.legend.engine.plan.execution.result.json.JsonStreamingResult;
+import org.finos.legend.engine.plan.execution.stores.relational.result.RealizedRelationalResult;
+import org.finos.legend.engine.plan.execution.stores.relational.result.RelationalResult;
 import org.finos.legend.engine.plan.generation.PlanGenerator;
 import org.finos.legend.engine.plan.generation.transformers.PlanTransformer;
 import org.finos.legend.engine.plan.platform.PlanPlatform;
@@ -61,6 +63,7 @@ import org.finos.legend.engine.protocol.graphQL.metamodel.typeSystem.TypeSystemD
 import org.finos.legend.engine.protocol.graphQL.metamodel.typeSystem.UnionTypeDefinition;
 import org.finos.legend.engine.protocol.pure.PureClientVersions;
 import org.finos.legend.engine.protocol.pure.v1.model.executionPlan.ExecutionPlan;
+import org.finos.legend.engine.protocol.pure.v1.model.executionPlan.SingleExecutionPlan;
 import org.finos.legend.engine.query.graphQL.api.GraphQL;
 import org.finos.legend.engine.query.graphQL.api.cache.GraphQLCacheKey;
 import org.finos.legend.engine.query.graphQL.api.cache.GraphQLDevCacheKey;
@@ -283,8 +286,8 @@ public class GraphQLExecute extends GraphQL
             return ExceptionTool.exceptionManager(e, LoggingEventType.EXECUTE_INTERACTIVE_ERROR, profiles);
         }
         ExecutorService executor = Executors.newFixedThreadPool(1);
-        Future<Map<String, ?>> extensionsObject = executor.submit(() -> computeExtensionsField(graphQLQuery));
         List<SerializedNamedPlans> finalPlanWithSerialized = planWithSerialized;
+        Future<Map<String, ?>> extensionsObject = executor.submit(() -> computeExtensionsField(graphQLQuery, finalPlanWithSerialized, profiles));
         return Response.ok(
                 (StreamingOutput) outputStream ->
                 {
@@ -302,12 +305,15 @@ public class GraphQLExecute extends GraphQL
                             JsonStreamingResult result = null;
                             try
                             {
-                                Map<String, Result> parameterMap = new HashMap<>();
-                                extractFieldByName(graphQLQuery, p.propertyName).arguments.stream().forEach(a -> parameterMap.put(a.name, new ConstantResult(argumentValueToObject(a.value))));
+                                if(!p.propertyName.contains("@totalCount")) // account for plans with @totalCount in property name as those are meant for extensions
+                                {
+                                    Map<String, Result> parameterMap = new HashMap<>();
+                                    extractFieldByName(graphQLQuery, p.propertyName).arguments.stream().forEach(a -> parameterMap.put(a.name, new ConstantResult(argumentValueToObject(a.value))));
 
-                                generator.writeFieldName(p.propertyName);
-                                result = (JsonStreamingResult) planExecutor.execute(p.serializedPlan, parameterMap, null, profiles);
-                                result.getJsonStream().accept(generator);
+                                    generator.writeFieldName(p.propertyName);
+                                    result = (JsonStreamingResult) planExecutor.execute(p.serializedPlan, parameterMap, null, profiles);
+                                    result.getJsonStream().accept(generator);
+                                }
                             }
                             catch (IOException e)
                             {
@@ -374,7 +380,7 @@ public class GraphQLExecute extends GraphQL
         return plans;
     }
 
-    private Map<String, ?> computeExtensionsField(OperationDefinition operationDefinition)
+    private Map<String, ?> computeExtensionsField(OperationDefinition operationDefinition, List<SerializedNamedPlans> finalPlanWithSerialized, MutableList<CommonProfile> profiles)
     {
         List<Directive> directives = ((Field)(operationDefinition.selectionSet.get(0))).directives.stream().distinct().collect(Collectors.toList());
         if (directives.isEmpty())
@@ -389,6 +395,17 @@ public class GraphQLExecute extends GraphQL
             if (directive.name.equals("echo"))
             {
                 m.get(fieldName).put("echo",true);
+            }
+            else if (directive.name.equals("totalCount"))
+            {
+                Map<String, Result> parameterMap = new HashMap<>();
+                extractFieldByName(operationDefinition, fieldName).arguments.stream().forEach(a -> parameterMap.put(a.name, new ConstantResult(argumentValueToObject(a.value))));
+                List<SerializedNamedPlans> namedPlansList = finalPlanWithSerialized.stream().filter(serializedNamedPlans -> serializedNamedPlans.propertyName.equals(fieldName + "@" + "totalCount")).collect(Collectors.toList());
+                SingleExecutionPlan plan = namedPlansList.get(0).serializedPlan;
+                Result result = (RelationalResult) planExecutor.execute(plan, parameterMap, null, profiles);
+                result = ((RealizedRelationalResult) (((RelationalResult)result).realizeInMemory()));
+                Long totalCount = ((Long)((List)(((RealizedRelationalResult) result).resultSetRows.get(0))).get(0));
+                m.get(fieldName).put("totalCount", totalCount);
             }
             else
             {
