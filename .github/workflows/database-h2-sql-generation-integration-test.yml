@@ -33,7 +33,7 @@ jobs:
   build:
     # NOTE: we cannot run this action in fork because secrets are not accessible from forks
     # See https://community.sonarsource.com/t/github-action-ci-build-fail-with-set-the-sonar-token-env-variable/38997
-    if: github.repository == 'finos/legend-engine'
+    if: github.repository == 'abhishoya-gs/legend-engine'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -54,7 +54,7 @@ jobs:
       - name: Download patch
         if: github.event.inputs.pullRequestId != ''
         run: |
-          wget --output-document=run.diff http://patch-diff.githubusercontent.com/raw/finos/legend-engine/pull/${{ github.event.inputs.pullRequestId }}.diff
+          wget --output-document=run.diff http://patch-diff.githubusercontent.com/raw/abhishoya-gs/legend-engine/pull/${{ github.event.inputs.pullRequestId }}.diff
           git apply run.diff
       - name: Print out mvn version
         run: mvn -v
