@@ -123,10 +123,10 @@ public class LegendDatabaseSQLTestingReport
                     {
                         LegendDatabaseTestingReportGenerator.SQLTestSummary emptySummary = new LegendDatabaseTestingReportGenerator.SQLTestSummary();
                         TestStatus testStatus = summariesByDatabase.getOrDefault(db, emptySummary).getTestResult(testName);
-
-                        statusesByDatabase.putIfAbsent(db, Maps.mutable.empty());
-                        statusesByDatabase.get(db).putIfAbsent(testStatus, 0);
-                        statusesByDatabase.get(db).compute(testStatus, (ts, count) -> count + 1);
+                        String dbName = summariesByDatabase.get(db).database;
+                        statusesByDatabase.putIfAbsent(dbName, Maps.mutable.empty());
+                        statusesByDatabase.get(dbName).putIfAbsent(testStatus, 0);
+                        statusesByDatabase.get(dbName).compute(testStatus, (ts, count) -> count + 1);
 
                         return testStatus;
                     }
@@ -155,13 +155,7 @@ public class LegendDatabaseSQLTestingReport
 
     private String resolveDatabaseName(String database)
     {
-        Optional<DatabaseType> databaseType = ArrayIterate.detectOptional(DatabaseType.values(), type -> type.name().equals(database));
-        if (!databaseType.isPresent())
-        {
-            System.out.println("Report processing error. Unknown database type '" + database + "'");
-            return UNKNOWN_DATABASE;
-        }
-        return databaseType.get().name();
+        return database;
     }
 
     private ImmutableList<String> allDatabasesInSpecificOrder()
@@ -169,21 +163,16 @@ public class LegendDatabaseSQLTestingReport
         ImmutableList<DatabaseType> allDatabaseTypes = Lists.immutable.with(DatabaseType.values());
 
         // databases that we have tests for OR databases that are actively being used by Legend users OR databases that have convenient test doubles or test infrastructure
-        ImmutableList<DatabaseType> databaseSet1 = Lists.immutable.of(
-                DatabaseType.H2, DatabaseType.Postgres,
-                DatabaseType.SqlServer,
-                DatabaseType.Snowflake, DatabaseType.Databricks,
-                DatabaseType.BigQuery, DatabaseType.Spanner,
-                DatabaseType.MemSQL, DatabaseType.Presto,
-                DatabaseType.Redshift, DatabaseType.Athena);
+        ImmutableList<DatabaseType> databaseSet1 = Lists.immutable.of();
 
         // everything else
         ImmutableList<DatabaseType> databaseSet2 = allDatabaseTypes.reject(d -> databaseSet1.contains(d));
 
         MutableList<DatabaseType> rearranged = Lists.mutable.withAll(databaseSet1);
-        rearranged.addAllIterable(databaseSet2);
+//        rearranged.addAllIterable(databaseSet2);
 
         //return rearranged.collect(Enum::name).collect(String::toLowerCase).toImmutable();
-        return rearranged.collect(Enum::name).toImmutable();
+        ImmutableList<String> testNames = Lists.immutable.with(DatabaseType.BigQuery.name() + " (Deloitte)",DatabaseType.BigQuery.name() + " (Simba)");
+        return testNames;
     }
 }

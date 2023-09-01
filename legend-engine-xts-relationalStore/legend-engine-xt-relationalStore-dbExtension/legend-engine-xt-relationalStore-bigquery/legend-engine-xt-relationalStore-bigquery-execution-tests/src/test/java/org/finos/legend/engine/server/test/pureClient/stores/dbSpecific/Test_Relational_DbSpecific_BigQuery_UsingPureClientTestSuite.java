@@ -21,13 +21,16 @@ import org.finos.legend.engine.server.test.shared.Relational_DbSpecific_UsingPur
 import org.finos.legend.pure.runtime.java.compiled.testHelper.IgnoreUnsupportedApiPureTestSuiteRunner;
 import org.junit.runner.RunWith;
 
+import java.util.TimeZone;
+
 @RunWith(IgnoreUnsupportedApiPureTestSuiteRunner.class)
 public class Test_Relational_DbSpecific_BigQuery_UsingPureClientTestSuite extends Relational_DbSpecific_UsingPureClientTestSuite
 {
     public static Test suite() throws Exception
     {
-        return createSuite(
-                "meta::relational::tests::sqlQueryToString::bigQuery",
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        assert TimeZone.getDefault().getID().equals("UTC");
+        return createSuite(                "meta::relational::tests::sqlQueryToString::bigQuery",
                 "org/finos/legend/engine/server/test/userTestConfig_withBigQueryTestConnection.json",
                 new NamedType(BigQueryTestDatabaseAuthenticationFlowProviderConfiguration.class, "bigQueryTest")
         );

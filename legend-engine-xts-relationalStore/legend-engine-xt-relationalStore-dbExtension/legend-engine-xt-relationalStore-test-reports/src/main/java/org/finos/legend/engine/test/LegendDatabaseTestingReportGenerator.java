@@ -42,8 +42,10 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /*
     This class generates a summary report of SQL tests.
@@ -123,6 +125,7 @@ public class LegendDatabaseTestingReportGenerator
                 return FileVisitResult.CONTINUE;
             }
             SQLTestSummary sqlTestSummary = processJunitXmlReport(this.builder, path.toFile().getAbsolutePath());
+            sqlTestSummary.database = sqlTestSummary.database + " (" + Arrays.stream(fileName.split("__")).collect(Collectors.toList()).get(1) + ")";
             sqlTestSummaries.add(sqlTestSummary);
             return FileVisitResult.CONTINUE;
         }
