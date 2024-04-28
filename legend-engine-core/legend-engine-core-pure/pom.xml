@@ -31,5 +31,6 @@
         <module>legend-engine-pure-code-compiled-functions</module>
         <module>legend-engine-pure-code-core-extension</module>
         <module>legend-engine-pure-platform-modular-generation</module>
+        <module>legend-engine-pure-code-compiled-core-protocol</module>
     </modules>
 </project>

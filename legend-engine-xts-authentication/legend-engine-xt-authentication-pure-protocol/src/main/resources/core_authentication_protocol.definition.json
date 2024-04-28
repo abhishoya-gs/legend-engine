@@ -1,0 +1,11 @@
+{
+  "name": "core_authentication_protocol",
+  "pattern": "(meta::pure::runtime::connection::authentication|meta::protocols::pure)(::.*)?",
+  "dependencies": [
+    "core_authentication",
+    "platform",
+    "platform_functions",
+    "core",
+    "core_protocol"
+  ]
+}

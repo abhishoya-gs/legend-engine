@@ -1,0 +1,15 @@
+{
+  "name": "core_relational_athena_protocol",
+  "pattern": "(meta::relational::functions::sqlQueryToString::athena|meta::relational::tests::sqlQueryToString::athena|meta::pure::alloy::connections|meta::external::store::relational::runtime|meta::protocols::pure|meta::relational::tests::connEquality)(::.*)?",
+  "dependencies": [
+    "platform",
+    "platform_functions",
+    "platform_store_relational",
+    "core_functions",
+    "core",
+    "core_protocol",
+    "core_relational",
+    "core_relational_protocol",
+    "core_relational_athena"
+  ]
+}

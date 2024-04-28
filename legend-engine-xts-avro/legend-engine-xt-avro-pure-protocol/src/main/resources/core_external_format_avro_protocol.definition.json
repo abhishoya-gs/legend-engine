@@ -1,0 +1,14 @@
+{
+  "name": "core_external_format_avro_protocol",
+  "pattern": "(meta::external::format::avro|meta::protocols::pure)(::.*)?",
+  "dependencies": [
+    "platform",
+    "platform_functions_json",
+    "platform_functions",
+    "core_functions",
+    "core",
+    "core_protocol",
+    "core_generation",
+    "core_external_format_avro"
+  ]
+}

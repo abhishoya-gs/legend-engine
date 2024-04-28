@@ -1,0 +1,15 @@
+{
+  "name": "core_relational_spanner_protocol",
+  "pattern": "(meta::relational::functions::sqlQueryToString::spanner|meta::relational::tests::sqlQueryToString::spanner|meta::pure::alloy::connections|meta::external::store::relational::runtime|meta::protocols::pure)(::.*)?",
+  "dependencies": [
+    "platform",
+    "platform_functions",
+    "platform_store_relational",
+    "core_functions",
+    "core",
+    "core_protocol",
+    "core_relational",
+    "core_relational_protocol",
+    "core_relational_spanner"
+  ]
+}
