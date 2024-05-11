@@ -105,8 +105,10 @@
 
     <properties>
         <!-- Legend -->
-        <legend.pure.version>5.5.0</legend.pure.version>
+        <legend.pure.version>5.5.1-SNAPSHOT</legend.pure.version>
         <legend.shared.version>0.25.4</legend.shared.version>
+        <pure.test.skip>false</pure.test.skip>
+        <pure.protocol.skip>false</pure.protocol.skip>
 
         <!-- SONAR -->
         <sonar.projectKey>legend-engine</sonar.projectKey>
@@ -396,6 +398,22 @@
                     <execution>
                         <id>default-compile</id>
                         <phase>process-classes</phase>
+                    </execution>
+                    <execution>
+                        <id>testCompile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-testCompile</id>
+                        <phase>process-test-classes</phase>
+                        <configuration>
+                            <compileSourceRoots>
+                                <root>${project.build.directory}/generated-test-sources</root>
+                            </compileSourceRoots>
+                        </configuration>
                     </execution>
                 </executions>
                 <configuration>
